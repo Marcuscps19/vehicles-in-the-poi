@@ -43,4 +43,4 @@ O retorno da API é no seguinte formato:
 [GitHub](https://github.com/Marcuscps19)<br />
 *Email:* mchusemann@gmail.com
 
-Aplicaçãocriada para o processo seletivo da [Mobi7](https://www.mobi7.com.br/)
+Aplicação criada para o processo seletivo da [Mobi7](https://www.mobi7.com.br/)
