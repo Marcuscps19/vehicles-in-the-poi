@@ -12,14 +12,6 @@ const readFile = async (path) => {
   });
 };
 
-const vehicleServices = async () => {
-  const poisPath = './utils/base_pois_def.csv';
-  const positionsPath = './utils/posicoes.csv';
-  const { data: poisData } = await readFile(poisPath);
-  const { data: positionsData } = await readFile(positionsPath);
-  return getDistanceBetweenLatLng(poisData, positionsData);
-};
-
 const calcMin = (actualMinObjTime, positionDate) => {
   if (moment(actualMinObjTime).isBefore(positionDate)) {
     return actualMinObjTime;
@@ -100,14 +92,7 @@ const populateTotalSpendTime = (totalSpendTime, objMinMaxTime, plate) => {
   }
 };
 
-const filterByPlate = (plate, plateParam) => {
-  if (plateParam) {
-    return plate === plateParam;
-  }
-  return false;
-};
-
-const populateObjMinMaxTime = (poi, positionsData) => {
+const getTimeSpentInPoi = (poi, positionsData) => {
   let objMinMaxTime = {};
   const totalSpendTime = {};
   const start = mountLatLngObj(poi);
@@ -125,32 +110,30 @@ const populateObjMinMaxTime = (poi, positionsData) => {
       } else {
         objMinMaxTime = createObjMinMaxTime(objMinMaxTime, plate, positionDate, positionDate);
       }
-    } else {
       populateTotalSpendTime(totalSpendTime, objMinMaxTime, plate);
     }
   });
   putRemainingObjects(objMinMaxTime, totalSpendTime);
-  return totalSpendTime;
-};
 
-const getTimeSpentInPoi = (poi, positionsData) => {
-  const totalSpendTime = populateObjMinMaxTime(poi, positionsData);
   return calculatedTime(totalSpendTime);
 };
 
-const getDistanceBetweenLatLng = (poisData, positionsData) => {
-  const arr = [];
-  poisData
-    .forEach((poi) => {
-      const expendTimeInAPoi = getTimeSpentInPoi(poi, positionsData);
+const getDistanceBetweenLatLng = (poisData, positionsData) => poisData
+  .reduce((acc, poi) => {
+    const expendTimeInAPoi = getTimeSpentInPoi(poi, positionsData);
+    if (expendTimeInAPoi.length) {
+      // eslint-disable-next-line no-param-reassign
+      acc = { ...acc, [poi.nome]: expendTimeInAPoi };
+    }
+    return acc;
+  }, {});
 
-      if (expendTimeInAPoi && Object.keys(expendTimeInAPoi).length !== 0) {
-        if (poi.nome) {
-          arr.push({ [poi.nome]: expendTimeInAPoi });
-        }
-      }
-    });
-  return arr;
+const vehicleServices = async () => {
+  const poisPath = './utils/base_pois_def.csv';
+  const positionsPath = './utils/posicoes.csv';
+  const { data: poisData } = await readFile(poisPath);
+  const { data: positionsData } = await readFile(positionsPath);
+  return getDistanceBetweenLatLng(poisData, positionsData);
 };
 
 module.exports = vehicleServices;
