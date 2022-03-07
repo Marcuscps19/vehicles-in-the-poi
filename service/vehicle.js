@@ -88,7 +88,7 @@ const populateTotalSpendTime = (totalSpendTime, objMinMaxTime, plate) => {
     } else {
       totalSpendTime[plate] = addSeconds(objMinMaxTime[plate].max, objMinMaxTime[plate].min);
     }
-    objMinMaxTime = {};
+    delete objMinMaxTime[plate];
   }
 };
 
@@ -110,11 +110,11 @@ const getTimeSpentInPoi = (poi, positionsData) => {
       } else {
         objMinMaxTime = createObjMinMaxTime(objMinMaxTime, plate, positionDate, positionDate);
       }
+    } else {
       populateTotalSpendTime(totalSpendTime, objMinMaxTime, plate);
     }
   });
   putRemainingObjects(objMinMaxTime, totalSpendTime);
-
   return calculatedTime(totalSpendTime);
 };
 
