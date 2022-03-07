@@ -103,7 +103,7 @@ const getTimeSpentInPoi = (poi, positionsData) => {
     const plate = pos.placa;
     // Source haversine: https://www.npmjs.com/package/haversine
     const isInsideAPoi = haversine(start, end, { threshold: radius, unit: 'meter' });
-    const positionDate = new Date(pos.data_posicao);
+    const positionDate = pos.data_posicao;
     if (isInsideAPoi) {
       if (objMinMaxTime[plate]) {
         objMinMaxTime = updatedMinMaxTime(plate, objMinMaxTime, positionDate);
@@ -128,12 +128,32 @@ const getDistanceBetweenLatLng = (poisData, positionsData) => poisData
     return acc;
   }, {});
 
-const vehicleServices = async () => {
+const filterByDate = (date, positionsData) => positionsData
+  .filter(({ data_posicao: data }) => date === moment(data).format('YYYY-MM-DD'));
+
+const filterByPlate = (plate, positionData) => positionData
+  .filter(({ placa }) => placa === plate);
+
+const filters = (positionsData, date, plate) => {
+  let data = positionsData;
+  if (date) {
+    data = filterByDate(date, positionsData);
+  }
+
+  if (plate) {
+    data = filterByPlate(plate, positionsData);
+  }
+
+  return data;
+};
+
+const vehicleServices = async (date, plate) => {
   const poisPath = './utils/base_pois_def.csv';
   const positionsPath = './utils/posicoes.csv';
   const { data: poisData } = await readFile(poisPath);
   const { data: positionsData } = await readFile(positionsPath);
-  return getDistanceBetweenLatLng(poisData, positionsData);
+  const filteredPositionsData = filters(positionsData, date, plate);
+  return getDistanceBetweenLatLng(poisData, filteredPositionsData);
 };
 
 module.exports = vehicleServices;
