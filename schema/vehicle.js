@@ -1,7 +1,7 @@
 const Joi = require('joi').extend(require('@joi/date'));
 
 const vehicleSchema = Joi.object({
-  datetime: Joi
+  date: Joi
     .date()
     .format('YYYY-MM-DD')
     .allow('')

@@ -1,8 +1,8 @@
 const vehicleSchema = require('../schema/vehicle');
 
 const validatePayload = (req, _res, next) => {
-  const { datetime, plate } = req.body;
-  const { error } = vehicleSchema.validate({ datetime, plate });
+  const { date, plate } = req.body;
+  const { error } = vehicleSchema.validate({ date, plate });
   if (error) {
     return next({ message: error.message, statusCode: 400 });
   }
